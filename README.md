@@ -96,8 +96,8 @@ npm install
 Crie um arquivo `.env` na raiz do projeto com as seguintes chaves do seu projeto no **Neon**:
 
 ```env
-VITE_NEON_AUTH_URL=https://ep-winter-rice-acv0qk4o.neonauth.sa-east-1.aws.neon.tech/neondb/auth
-VITE_NEON_DATA_API_URL=https://ep-winter-rice-acv0qk4o.apirest.sa-east-1.aws.neon.tech/neondb/rest/v1
+VITE_NEON_AUTH_URL=https://seu-endpoint.neonauth.sa-east-1.aws.neon.tech/neondb/auth
+VITE_NEON_DATA_API_URL=https://seu-endpoint.apirest.sa-east-1.aws.neon.tech/neondb/rest/v1
 ```
 
 ### 4. Iniciar o Servidor de Desenvolvimento
