@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { authClient } from '../lib/neon';
+import ThemeToggle from './ThemeToggle';
 
 export default function Sidebar({ user }) {
   const navigate = useNavigate();
@@ -89,6 +90,8 @@ export default function Sidebar({ user }) {
 
       {/* Footer Profile & Logout */}
       <div className="sidebar-footer">
+        <ThemeToggle />
+
         <div className="user-profile-widget">
           <div className="user-avatar">
             {getInitials(user?.name, user?.email)}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authClient } from '../lib/neon';
+import ThemeToggle from '../components/ThemeToggle';
 
 export default function Cadastro() {
   const [nome, setNome] = useState('');
@@ -74,6 +75,10 @@ export default function Cadastro() {
 
   return (
     <div className="auth-container">
+      <div className="auth-theme-switch-top">
+        <ThemeToggle />
+      </div>
+
       <div className="auth-card">
         <div className="auth-header">
           <div className="auth-logo">NA</div>
