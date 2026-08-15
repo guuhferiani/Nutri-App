@@ -2,6 +2,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './pages/Login';
 import Cadastro from './pages/Cadastro';
 import Dashboard from './pages/Dashboard';
+import Pacientes from './pages/Pacientes';
+import PacienteDetalhe from './pages/PacienteDetalhe';
 
 function App() {
   return (
@@ -10,8 +12,11 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<Cadastro />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        {/* Rota padrão redireciona para login */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="/pacientes" element={<Pacientes />} />
+        <Route path="/pacientes/:id" element={<PacienteDetalhe />} />
+        {/* Rota padrão redireciona para login ou dashboard */}
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </Router>
   );

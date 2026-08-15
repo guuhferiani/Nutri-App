@@ -26,15 +26,24 @@ export default function Login() {
     try {
       const result = await authClient.signIn.email({ email, password });
       
-      if (result.error) {
-        setError(result.error.message || 'Falha ao fazer login. Verifique suas credenciais.');
+      if (result?.error) {
+        let msg = result.error.message || 'Falha ao fazer login. Verifique suas credenciais.';
+        if (msg.toLowerCase().includes('invalid') || msg.toLowerCase().includes('credential')) {
+          msg = 'E-mail ou senha incorretos.';
+        }
+        setError(msg);
         setLoading(false);
         return;
       }
       
       navigate('/dashboard');
     } catch (err) {
-      setError('Ocorreu um erro inesperado.');
+      console.error(err);
+      let msg = err?.message || 'Falha ao fazer login. Verifique suas credenciais.';
+      if (msg.toLowerCase().includes('invalid') || msg.toLowerCase().includes('credential')) {
+        msg = 'E-mail ou senha incorretos.';
+      }
+      setError(msg);
       setLoading(false);
     }
   };

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { authClient, fetchNeonDataAPI } from '../lib/neon';
+import { authClient } from '../lib/neon';
 
 export default function Cadastro() {
   const [nome, setNome] = useState('');
@@ -24,8 +24,8 @@ export default function Cadastro() {
     e.preventDefault();
     setError('');
 
-    if (password.length < 6) {
-      setError('A senha deve ter no mínimo 6 caracteres.');
+    if (password.length < 9) {
+      setError('A senha deve ter no mínimo 9 caracteres.');
       return;
     }
 
@@ -37,47 +37,36 @@ export default function Cadastro() {
     setLoading(true);
 
     try {
-      // 1. Cadastra no Neon Auth (Managed Better Auth)
+      // 1. Cadastra no Neon Auth (Better Auth)
       const result = await authClient.signUp.email({ 
         name: nome, 
         email: email, 
         password: password 
       });
       
-      if (result.error) {
-        setError(result.error.message || 'Falha ao criar conta. O email já pode estar em uso.');
+      if (result?.error) {
+        let msg = result.error.message || 'Falha ao criar conta.';
+        if (msg.includes('Password does not meet') || msg.toLowerCase().includes('password')) {
+          msg = 'A senha não atende aos requisitos de segurança (mínimo 9 caracteres).';
+        } else if (msg.toLowerCase().includes('already') || msg.toLowerCase().includes('exists')) {
+          msg = 'Este e-mail já está cadastrado. Faça login ou use outro e-mail.';
+        }
+        setError(msg);
         setLoading(false);
         return;
       }
 
-      // Após cadastro bem sucedido, o usuário já está logado no Auth e temos um token
-      const sessionResult = await authClient.getSession();
-      const userId = sessionResult.data?.user?.id;
-
-      if (!userId) {
-        throw new Error("Usuário criado, mas não foi possível obter a sessão.");
-      }
-
-      // 2. Salva o nutricionista no banco de dados Neon via Data API
-      // O RLS vai verificar se o id bate com o id do jwt (sub)
-      try {
-        await fetchNeonDataAPI('/nutricionistas', {
-          method: 'POST',
-          body: JSON.stringify({
-            id: userId,
-            nome: nome,
-            email: email
-          })
-        });
-      } catch (dbError) {
-        console.error("Erro ao salvar nutricionista no DB", dbError);
-        // Mesmo com erro no DB, o usuário foi criado no Auth, mas é bom registrar o erro.
-      }
-
+      // Usuário autenticado com sucesso
       navigate('/dashboard');
     } catch (err) {
       console.error(err);
-      setError('Ocorreu um erro inesperado durante o cadastro.');
+      let msg = err?.message || 'Ocorreu um erro durante o cadastro.';
+      if (msg.includes('Password does not meet') || msg.toLowerCase().includes('password')) {
+        msg = 'A senha não atende aos requisitos de segurança (mínimo 9 caracteres).';
+      } else if (msg.toLowerCase().includes('already') || msg.toLowerCase().includes('exists')) {
+        msg = 'Este e-mail já está cadastrado. Faça login ou use outro e-mail.';
+      }
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -127,11 +116,11 @@ export default function Cadastro() {
               id="password"
               type="password"
               className="form-input"
-              placeholder="Min. 6 caracteres"
+              placeholder="Mínimo 9 caracteres"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              minLength={6}
+              minLength={9}
             />
           </div>
 
@@ -141,11 +130,11 @@ export default function Cadastro() {
               id="confirmPassword"
               type="password"
               className="form-input"
-              placeholder="Repita a senha"
+              placeholder="Repita a senha (mínimo 9 caracteres)"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
-              minLength={6}
+              minLength={9}
             />
           </div>
 

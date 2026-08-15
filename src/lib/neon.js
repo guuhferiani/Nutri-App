@@ -21,5 +21,11 @@ export const fetchNeonDataAPI = async (endpoint, options = {}) => {
     }
   });
 
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error(`Erro na Data API Neon (${response.status}):`, errorText);
+    throw new Error(`Data API error (${response.status}): ${errorText}`);
+  }
+
   return response.json();
 };
