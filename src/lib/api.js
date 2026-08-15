@@ -1,4 +1,4 @@
-import { fetchNeonDataAPI } from './neon';
+import { fetchNeonDataAPI, authClient } from './neon';
 
 /**
  * Busca todos os pacientes da nutricionista logada
@@ -50,6 +50,60 @@ export async function getConsultasByPacienteId(pacienteId) {
     console.error(`Erro ao buscar consultas do paciente ${pacienteId}:`, error);
     return [];
   }
+}
+
+/**
+ * Cria um novo paciente vinculado à nutricionista logada
+ */
+export async function createPaciente(pacienteData) {
+  const sessionResult = await authClient.getSession();
+  const userId = sessionResult.data?.user?.id;
+
+  if (!userId) {
+    throw new Error('Nutricionista não autenticada.');
+  }
+
+  const payload = {
+    ...pacienteData,
+    nutricionista_id: userId
+  };
+
+  // Sanitiza campos vazios para null
+  Object.keys(payload).forEach((key) => {
+    if (payload[key] === '' || payload[key] === undefined) {
+      payload[key] = null;
+    }
+  });
+
+  const res = await fetchNeonDataAPI('/pacientes', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+
+  return Array.isArray(res) && res.length > 0 ? res[0] : res;
+}
+
+/**
+ * Atualiza os dados de um paciente existente
+ */
+export async function updatePaciente(id, pacienteData) {
+  const payload = { ...pacienteData };
+  delete payload.id;
+  delete payload.created_at;
+
+  // Sanitiza campos vazios para null
+  Object.keys(payload).forEach((key) => {
+    if (payload[key] === '' || payload[key] === undefined) {
+      payload[key] = null;
+    }
+  });
+
+  const res = await fetchNeonDataAPI(`/pacientes?id=eq.${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(payload)
+  });
+
+  return Array.isArray(res) && res.length > 0 ? res[0] : res;
 }
 
 /**
